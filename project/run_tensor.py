@@ -36,7 +36,17 @@ class Linear(minitorch.Module):
 
     def forward(self, x):
         # TODO: Implement for Task 2.5.
-        
+        #  mul weights with input tensor and add biases
+        batch_size, in_size = x.shape
+        i = self.weights.value.view(1, in_size, self.out_size)
+        x = x.view(batch_size, in_size, 1)
+        t = i * x
+        t = t.sum(1).view(batch_size, self.out_size)
+        b = self.bias.value.view(1, self.out_size)
+        return t + b
+
+
+
         
 
 

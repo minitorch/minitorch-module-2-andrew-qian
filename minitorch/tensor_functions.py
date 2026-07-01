@@ -100,12 +100,14 @@ class Mul(Function):
     @staticmethod
     def forward(ctx: Context, a: Tensor, b: Tensor) -> Tensor:
         # TODO: Implement for Task 2.3.
+        ctx.save_for_backward(a, b)
         return a.f.mul_zip(a, b)
 
     @staticmethod
     def backward(ctx: Context, grad_output: Tensor) -> Tuple[Tensor, Tensor]:
         # TODO: Implement for Task 2.4.
-        return grad_output, grad_output
+        (a, b) = ctx.saved_values
+        return grad_output * b, grad_output * a
 
 
 class Sigmoid(Function):
@@ -119,8 +121,8 @@ class Sigmoid(Function):
     def backward(ctx: Context, grad_output: Tensor) -> Tensor:
         # TODO: Implement for Task 2.4.
         (t1, ) = ctx.saved_values
-        sig = t1.f.sigmoid_map(t1)
-        return sig * (1.0 - sig) * grad_output
+        sig = grad_output.f.sigmoid_map(t1)
+        return sig * (sig * -1.0 + 1.0) * grad_output
 
 
 class ReLU(Function):
@@ -134,7 +136,7 @@ class ReLU(Function):
     def backward(ctx: Context, grad_output: Tensor) -> Tensor:
         # TODO: Implement for Task 2.4.
         (t1, ) = ctx.saved_values
-        return t1.f.relu_back_zip(t1)
+        return grad_output.f.relu_back_zip(t1, grad_output)
 
 
 class Log(Function):
@@ -148,7 +150,7 @@ class Log(Function):
     def backward(ctx: Context, grad_output: Tensor) -> Tensor:
         # TODO: Implement for Task 2.4.
         (t1, ) = ctx.saved_values
-        return t1.f.log_back_zip(t1)
+        return grad_output.f.log_back_zip(t1, grad_output)
 
 
 class Exp(Function):
@@ -162,7 +164,7 @@ class Exp(Function):
     def backward(ctx: Context, grad_output: Tensor) -> Tensor:
         # TODO: Implement for Task 2.4.
         (t1, ) = ctx.saved_values
-        return t1.f.exp_map(t1) * grad_output
+        return grad_output.f.exp_map(t1) * grad_output
 
 
 class Sum(Function):
